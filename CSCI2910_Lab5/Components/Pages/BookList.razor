@@ -1,0 +1,52 @@
+﻿@page "/books"
+@using CSCI2910_Lab5.Models
+@inject CSCI2910_Lab5.Services.LibraryService LibraryService
+@inject NavigationManager NavigationManager
+
+<h3>Book List</h3>
+
+<button @onclick="LoadBooks">Load Books</button>
+
+@if (books != null && books.Any())
+{
+    <ul>
+        @foreach (var book in books)
+        {
+            <li>
+                <strong>@book.Id: </strong>
+                <strong>@book.Title</strong> by @book.Author
+                <button @onclick="() => EditBook(book.Id)">Edit</button>
+                <button @onclick="() => DeleteBook(book.Id)">Delete</button>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>No books available.</p>
+}
+
+@code {
+    private List<Book> books = new List<Book>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        LoadBooks();
+    }
+
+    private void LoadBooks()
+    {
+        books = LibraryService.GetAllBooks();
+    }
+
+    private void EditBook(int id)
+    {
+        NavigationManager.NavigateTo($"/books/edit/{id}");
+    }
+
+    private void DeleteBook(int id)
+    {
+        LibraryService.DeleteBook(id);
+        LoadBooks();
+    }
+}

@@ -1,0 +1,128 @@
+﻿@page "/books/edit"
+@page "/books/edit/{Id:int}"
+@inject CSCI2910_Lab5.Services.LibraryService LibraryService
+@using CSCI2910_Lab5.Models
+
+<h3>Edit Book</h3>
+
+<!-- Search Section -->
+<div>
+    <label for="searchOption">Search by:</label>
+    <select @bind="searchOption">
+        <option value="Id">ID</option>
+        <option value="Title">Title</option>
+    </select>
+
+    <br>
+
+    @if (searchOption == "Id")
+    {
+        <input type="number" @bind="searchId" placeholder="Enter Book ID" />
+    }
+    else if (searchOption == "Title")
+    {
+        <input type="text" @bind="searchTitle" placeholder="Enter Book Title" />
+    }
+
+    <button @onclick="SearchBook">Search</button>
+</div>
+
+<br />
+
+<h3>Add Book</h3>
+
+<div>
+    <label>Title:</label>
+	<input type="text" @bind="newBook.Title" />
+    <label>Author</label>
+    <input type="text" @bind="newBook.Author" />
+    <label>ISBN:</label>
+    <input type="text" @bind="newBook.ISBN" />
+    <button @onclick="AddBook">Add</button>
+</div>
+
+
+<!-- Edit Section -->
+@if (selectedBook != null)
+{
+    <h4>Editing Book: @selectedBook.Title</h4>
+    <div>
+        <label>Title:</label>
+        <input type="text" @bind="selectedBook.Title" />
+    </div>
+    <div>
+        <label>Author:</label>
+        <input type="text" @bind="selectedBook.Author" />
+    </div>
+    <div>
+        <label>ISBN:</label>
+        <input type="text" @bind="selectedBook.ISBN" />
+    </div>
+    <button @onclick="SaveBook">Save</button>
+    <button @onclick="Clear">Cancel</button>
+}
+else if (searchPerformed)
+{
+    <p>No book found with the specified @searchOption.</p>
+}
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private string searchOption = "Id";
+    private int searchId;
+    private string searchTitle;
+    private Book? selectedBook = null;
+    private bool searchPerformed = false;
+    private Book newBook = new Book();
+
+    protected override void OnInitialized()
+    {
+        if (Id > 0)
+		{
+			searchOption = "Id";
+			searchId = Id;
+			SearchBook();
+		}
+    }
+
+    private void SearchBook()
+    {
+        if (searchOption == "Id")
+        {
+            selectedBook = LibraryService.GetBookById(searchId);
+        }
+        else if (searchOption == "Title")
+        {
+            selectedBook = LibraryService.GetAllBooks().FirstOrDefault(b => b.Title.Equals(searchTitle, StringComparison.OrdinalIgnoreCase));
+        }
+
+        searchPerformed = true;
+    }
+
+    private void SaveBook()
+    {
+        if (selectedBook != null)
+        {
+            LibraryService.UpdateBook(selectedBook);
+            Clear();
+        }
+    }
+
+    private void AddBook()
+	{
+		LibraryService.AddBook(newBook);
+		Clear();
+	}
+
+    private void Clear()
+    {
+        // Clear search results and reset the form
+        selectedBook = null;
+        searchId = 0;
+        searchTitle = string.Empty;
+        searchPerformed = false;
+    }
+}

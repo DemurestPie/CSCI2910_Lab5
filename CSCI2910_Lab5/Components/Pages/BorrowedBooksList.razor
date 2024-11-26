@@ -1,0 +1,131 @@
+﻿@page "/borrowed"
+@using CSCI2910_Lab5.Models
+@inject CSCI2910_Lab5.Services.LibraryService LibraryService
+@inject NavigationManager NavigationManager
+
+<h3>Borrowed Books</h3>
+
+<div>
+    <label for="searchOption">Search by:</label>
+    <select @bind="searchOption">
+        <option value="Name">Name</option>
+        <option value="Title">Book Title</option>
+    </select>
+
+    <br>
+
+    @if (searchOption == "Name")
+    {
+        <input type="text" @bind="searchName" placeholder="Enter Name" />
+    }
+    else if (searchOption == "Title")
+    {
+        <input type="text" @bind="bookTitle" placeholder="Enter Book Title" />
+    }
+
+    <button @onclick="SearchBorrowedBook">Search</button>
+</div>
+
+@if (borrowedBooks != null)
+{
+    <ul>
+        @foreach (var book in borrowedBooks)
+        {
+            if (book.DateReturned != null)
+			{
+				continue; // Skip books that have been returned
+			}
+
+            <li>
+                <strong>@book.Id: </strong>
+                <strong>@LibraryService.GetBookById(book.BookId).Title</strong> borrowed by <u>@LibraryService.GetUserNameById(book.UserId)</u> on @book.DateBorrowed.ToShortDateString()
+                <button @onclick="() => ReturnBook(book.BookId)">Return</button>
+                <button @onclick="() => EditBook(book.Id)">Edit</button>
+                <button @onclick="() => DeleteBook(book.Id)">Delete</button>
+            </li>
+        }
+    </ul>
+}
+else if (searchPerformed)
+{
+    <p>No book found with the specified @searchOption.</p>
+}
+
+@code {
+
+    private string searchOption = "Id";
+    private string searchName;
+    private string bookTitle;
+    private Book? selectedBook = null;
+    private bool searchPerformed = false;
+
+    private List<BorrowedBook> borrowedBooks = new List<BorrowedBook>();
+
+    private List<Book> books = new List<Book>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        LoadBooks();
+    }
+
+    private void LoadBooks()
+    {
+        borrowedBooks = LibraryService.GetBorrowedBooks();
+    }
+
+    private void SearchBorrowedBook()
+    {
+        searchPerformed = true;
+
+        if (searchOption == "Name")
+        {
+            int userId = LibraryService.GetUserIdByName(searchName);
+            List<BorrowedBook> newBorrowedBooks = new List<BorrowedBook>();
+            foreach (var book in borrowedBooks)
+            {
+                if (book.UserId == userId)
+                {
+                   newBorrowedBooks.Add(book);
+                }
+            }
+            borrowedBooks = newBorrowedBooks;
+        }
+        else if (searchOption == "Title")
+        {
+            List<BorrowedBook> newBorrowedBooks = new List<BorrowedBook>();
+            foreach (var book in borrowedBooks)
+            {
+                string thisBookTitle = LibraryService.GetBookById(book.BookId).Title;
+                if (thisBookTitle == bookTitle)
+				{
+					newBorrowedBooks.Add(book);
+				}
+            }
+            borrowedBooks = newBorrowedBooks;
+        }
+    }
+
+    private void EditBook(int id)
+    {
+        NavigationManager.NavigateTo($"/books/edit/{id}");
+	
+    }
+
+    private void ReturnBook(int bookId)
+	{
+		LibraryService.ReturnBook(bookId);
+		LoadBooks();
+	}
+
+    private void DeleteBook(int id)
+	{
+		LibraryService.DeleteBook(id);
+		LoadBooks();
+	}
+
+	private void Clear()
+	{
+		selectedBook = null;
+		searchPerformed = false;
+	}
+}

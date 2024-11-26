@@ -1,0 +1,63 @@
+﻿@page "/"
+@inject NavigationManager NavigationManager
+
+<PageTitle>Library Home</PageTitle>
+
+<div class="container">
+    <h1>Welcome to the Library</h1>
+    <p>Explore our collection of books and manage user information with ease.</p>
+
+    <section class="features">
+        <div class="feature">
+            <h2>Browse Books</h2>
+            <p>Discover new and popular books in our collection. You can view details, search by title, and more.</p>
+            <button class="btn btn-primary" @onclick="() => NavigationManager.NavigateTo(bookPage)">Browse Books</button>
+        </div>
+
+        <div class="feature">
+            <h2>Manage Users</h2>
+            <p>View and manage library users. Add new users, update user information, and more.</p>
+            <button class="btn btn-primary" @onclick="() => NavigationManager.NavigateTo(userPage)">Manage Users</button>
+        </div>
+
+        <div class="feature">
+			<h2>Borrow Books</h2>
+			<p>Borrow books from our collection. Keep track of borrowed books and return them when you're done.</p>
+			<button class="btn btn-primary" @onclick="() => NavigationManager.NavigateTo(borrowedPage)">Borrow Books</button>
+        </div>
+    </section>
+</div>
+
+<style>
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .features {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .feature {
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+
+    .btn {
+        margin-top: 10px;
+    }
+</style>
+
+
+@code {
+    // I hate c# so much this is so dumb >:(
+    // Why couldn't I just put it in the html?
+    private string bookPage = "/books";
+    private string userPage = "/users";   
+    private string borrowedPage = "/borrowed";
+}

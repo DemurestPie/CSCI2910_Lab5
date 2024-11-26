@@ -1,0 +1,129 @@
+﻿@page "/users/edit"
+@page "/users/edit/{Id:int}"
+@using CSCI2910_Lab5.Models
+@inject CSCI2910_Lab5.Services.LibraryService LibraryService
+
+<h3>Edit User</h3>
+
+<!-- Search Section -->
+<div>
+    <label for="searchOption">Search by:</label>
+    <select @bind="searchOption">
+        <option value="Id">ID</option>
+        <option value="Name">Name</option>
+    </select>
+
+    <br>
+
+    @if (searchOption == "Id")
+    {
+        <input type="number" @bind="searchId" placeholder="Enter User ID" />
+    }
+    else if (searchOption == "Name")
+    {
+        <input type="text" @bind="searchName" placeholder="Enter User Name" />
+    }
+
+    <button @onclick="GetUser">Search</button>
+</div>
+
+<br />
+
+<h3>Add User</h3>
+
+<div>
+	<label>Name:</label>
+	<input type="text" @bind="newUser.Name" />
+	<label>Email:</label>
+	<input type="text" @bind="newUser.Email" />
+	<button @onclick="AddUser">Add</button>
+</div>
+
+<!-- Edit Section -->
+@if (selectedUser != null)
+{
+    <h4>Editing User: @selectedUser.Name</h4>
+    <div>
+        <label>Name:</label>
+        <input type="text" @bind="selectedUser.Name" />
+    </div>
+    <div>
+        <label>Email:</label>
+        <input type="text" @bind="selectedUser.Email" />
+    </div>
+    <button @onclick="SaveUser">Save</button>
+    <button @onclick="Clear">Cancel</button>
+}
+else if (searchPerformed)
+{
+    <h5>No user found with the specified @searchOption.</h5>
+}
+
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private User selectedUser = null;
+    private User newUser = new User();
+    private string searchOption= "Id"; // Id or Name
+    private int searchId;
+    private string searchName;
+    private bool searchPerformed = false;
+
+    private List<User> users = new List<User>();
+
+    protected override void OnInitialized()
+    {
+        if (Id > 0)
+        {
+            searchOption = "Id";
+            searchId = Id;
+            GetUser();
+        }
+    }
+
+    private void GetUser()
+    {
+        if (searchOption == "Id")
+        {
+            selectedUser = LibraryService.GetUserById(searchId);
+        }
+        else if (searchOption == "Name")
+        {
+            selectedUser = LibraryService.GetUserByName(searchName);
+        }
+
+        searchPerformed = true;
+    }
+
+    private void SaveUser()
+    {
+        LibraryService.UpdateUser(selectedUser);
+        Clear();
+    }
+
+    private void AddUser()
+    {
+        LibraryService.AddUser(newUser);
+		Clear();
+    }    
+
+    private void Clear()
+	{
+		selectedUser = null;
+		searchPerformed = false;
+	}
+
+	private void DeleteUser(int id)
+	{
+		LibraryService.DeleteUser(id);
+		LoadUsers();
+	}
+
+	private void LoadUsers()
+	{
+		users = LibraryService.GetAllUsers();
+	}
+
+}
