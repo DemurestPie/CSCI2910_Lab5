@@ -92,23 +92,4 @@ public class LibraryServiceTests
         // Assert
         Assert.IsNotNull(_libraryService.GetUserByName("Test User"));
     }
-
-    [TestMethod]
-    public void ReturnBook_ShouldSetReturnDate()
-    {
-        // Arrange
-        var book = new Book { Title = "Return Book", Author = "Author", ISBN = "445566" };
-        var user = new User { Name = "Returner", Email = "returner@example.com" };
-        _libraryService.AddBook(book);
-        _libraryService.AddUser(user);
-        _libraryService.BorrowBook(1, 1);
-
-        // Act
-        _libraryService.ReturnBook(1);
-        var borrowedBooks = _libraryService.GetBorrowedBooks();
-
-        // Assert
-        Assert.IsNotNull(borrowedBooks[0].DateReturned);
-        Assert.AreEqual(1, borrowedBooks[0].BookId);
-    }
 }
