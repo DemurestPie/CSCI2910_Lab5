@@ -55,7 +55,7 @@ public class LibraryServiceTests
     public void DeleteBook_ShouldRemoveBook()
     {
         // Arrange
-        var book = new Book { Title = "To Be Deleted", Author = "Author", ISBN = "777888999" };
+        var book = new Book { Title = "To Be Deleted", Author = "Author", ISBN = 777888999 };
         _libraryService.AddBook(book);
 
         // Act
